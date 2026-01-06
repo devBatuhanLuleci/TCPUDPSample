@@ -20,11 +20,11 @@ namespace TCPUDPSample.Networking.Server
 
         public class TCP
         {
-            public TcpClient socket;
+            public TcpClient? socket;
             private readonly int id;
-            private NetworkStream stream;
-            private byte[] receiveBuffer;
-            private Packet receivedData;
+            private NetworkStream? stream;
+            private byte[]? receiveBuffer;
+            private Packet? receivedData;
 
             public TCP(int _id)
             {
@@ -50,7 +50,7 @@ namespace TCPUDPSample.Networking.Server
             {
                 try
                 {
-                    if (socket != null)
+                    if (socket != null && stream != null)
                     {
                         stream.BeginWrite(_packet.ToArray(), 0, _packet.Length(), null, null);
                     }
@@ -65,7 +65,7 @@ namespace TCPUDPSample.Networking.Server
             {
                 try
                 {
-                    int _byteLength = stream.EndRead(_result);
+                    int _byteLength = stream!.EndRead(_result);
                     if (_byteLength <= 0)
                     {
                         Server.Clients[id].Disconnect();
@@ -73,12 +73,12 @@ namespace TCPUDPSample.Networking.Server
                     }
 
                     byte[] _data = new byte[_byteLength];
-                    Array.Copy(receiveBuffer, _data, _byteLength);
+                    Array.Copy(receiveBuffer!, _data, _byteLength);
 
-                    receivedData.Reset(HandleData(_data));
+                    receivedData!.Reset(HandleData(_data));
                     if (stream != null)
                     {
-                        stream.BeginRead(receiveBuffer, 0, receiveBuffer.Length, ReceiveCallback, null);
+                        stream.BeginRead(receiveBuffer!, 0, receiveBuffer!.Length, ReceiveCallback, null);
                     }
                 }
                 catch (Exception _ex)
@@ -92,7 +92,7 @@ namespace TCPUDPSample.Networking.Server
             {
                 int _packetLength = 0;
 
-                receivedData.SetBytes(_data);
+                receivedData!.SetBytes(_data);
 
                 if (receivedData.UnreadLength() >= 4)
                 {
@@ -136,7 +136,7 @@ namespace TCPUDPSample.Networking.Server
 
             public void Disconnect()
             {
-                socket.Close();
+                socket?.Close();
                 socket = null;
                 stream = null;
                 receivedData = null;
@@ -146,7 +146,7 @@ namespace TCPUDPSample.Networking.Server
 
         public class UDP
         {
-            public IPEndPoint endPoint;
+            public IPEndPoint? endPoint;
             private readonly int id;
 
             public UDP(int _id)
@@ -162,7 +162,10 @@ namespace TCPUDPSample.Networking.Server
 
             public void SendData(Packet _packet)
             {
-                Server.SendUDPData(endPoint, _packet);
+                if (endPoint != null)
+                {
+                    Server.SendUDPData(endPoint, _packet);
+                }
             }
 
             public void HandleData(Packet _packetData)
@@ -188,7 +191,10 @@ namespace TCPUDPSample.Networking.Server
 
         public void Disconnect()
         {
-            Console.WriteLine($"{tcp.socket.Client.RemoteEndPoint} has disconnected.");
+            if (tcp.socket != null)
+            {
+                Console.WriteLine($"{tcp.socket.Client.RemoteEndPoint} has disconnected.");
+            }
             tcp.Disconnect();
             udp.Disconnect();
         }

@@ -12,7 +12,7 @@ namespace TCPUDPSample.Protocols.Server
             int _clientIdCheck = _packet.ReadInt();
             string _username = _packet.ReadString();
 
-            Console.WriteLine($"{Networking.Server.Server.Clients[_fromClient].tcp.socket.Client.RemoteEndPoint} back with username: {_username} (ID: {_fromClient})");
+            Console.WriteLine($"{Networking.Server.Server.Clients[_fromClient].tcp.socket?.Client.RemoteEndPoint} back with username: {_username} (ID: {_fromClient})");
 
             if (_fromClient != _clientIdCheck)
             {

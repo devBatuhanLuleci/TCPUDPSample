@@ -19,7 +19,7 @@ namespace TCPUDPSample.Networking.Client
         public TCP? tcp;
         public UDP? udp;
 
-        public delegate void PacketHandler(Packet _packet);
+        public delegate void PacketHandler(Core.Packet _packet);
         public static Dictionary<int, PacketHandler>? packetHandlers;
 
         private bool isConnected = false;
@@ -46,8 +46,8 @@ namespace TCPUDPSample.Networking.Client
         {
             packetHandlers = new Dictionary<int, PacketHandler>()
             {
-                { (int)ServerPackets.welcome, ClientHandle.Welcome },
-                { (int)ServerPackets.udpTest, ClientHandle.UDPTest }
+                { (int)ServerPackets.welcome, p => ClientHandle.Welcome(p) },
+                { (int)ServerPackets.udpTest, p => ClientHandle.UDPTest(p) }
             };
             Console.WriteLine("Initialized packets.");
         }
@@ -190,15 +190,20 @@ namespace TCPUDPSample.Networking.Client
         public class UDP
         {
             public UdpClient? socket;
-            public IPEndPoint endPoint;
+            public IPEndPoint? endPoint;
 
             public UDP()
             {
-                endPoint = new IPEndPoint(IPAddress.Parse(instance!.ip), instance.port);
+                if (instance != null)
+                {
+                    endPoint = new IPEndPoint(IPAddress.Parse(instance.ip), instance.port);
+                }
             }
 
             public void Connect(int _localPort)
             {
+                if (endPoint == null) return;
+
                 socket = new UdpClient(_localPort);
                 socket.Connect(endPoint);
                 socket.BeginReceive(ReceiveCallback, null);
@@ -227,9 +232,10 @@ namespace TCPUDPSample.Networking.Client
 
             private void ReceiveCallback(IAsyncResult _result)
             {
+                if (socket == null || endPoint == null) return;
                 try
                 {
-                    byte[] _data = socket!.EndReceive(_result, ref endPoint);
+                    byte[] _data = socket.EndReceive(_result, ref endPoint!);
                     socket.BeginReceive(ReceiveCallback, null);
 
                     if (_data.Length < 4)

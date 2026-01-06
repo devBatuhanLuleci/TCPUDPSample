@@ -66,10 +66,10 @@ namespace TCPUDPSample.Networking.Server
             try
             {
                 IPEndPoint _clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                byte[] _data = udpListener.EndReceive(_result, ref _clientEndPoint);
+                byte[] _data = udpListener.EndReceive(_result, ref _clientEndPoint!);
                 udpListener.BeginReceive(UDPReceiveCallback, null);
 
-                if (_data.Length < 4) return;
+                if (_data == null || _data.Length < 4) return;
 
                 using (Packet _packet = new Packet(_data))
                 {
@@ -83,7 +83,7 @@ namespace TCPUDPSample.Networking.Server
                         return;
                     }
 
-                    if (Clients[_clientId].udp.endPoint.ToString() == _clientEndPoint.ToString())
+                    if (Clients[_clientId].udp.endPoint != null && Clients[_clientId].udp.endPoint!.ToString() == _clientEndPoint.ToString())
                     {
                         Clients[_clientId].udp.HandleData(_packet);
                     }
