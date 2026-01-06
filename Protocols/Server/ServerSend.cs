@@ -35,7 +35,26 @@ namespace TCPUDPSample.Protocols.Server
             {
                 _packet.Write("A test packet for UDP");
 
-                SendUDPData(_toClient, _packet);
+            }
+        }
+        public static void DataExchange(int _toClient, string _data)
+        {
+            using (Packet _packet = new Packet((int)ServerPackets.dataExchange))
+            {
+                _packet.Write(_data);
+
+                SendTCPData(_toClient, _packet);
+            }
+        }
+
+        public static void SendDataToAll(string _data)
+        {
+            foreach (var _client in Networking.Server.Server.Clients.Values)
+            {
+                if (_client.tcp.socket != null)
+                {
+                    DataExchange(_client.id, _data);
+                }
             }
         }
     }

@@ -26,5 +26,11 @@ namespace TCPUDPSample.Protocols.Client
             Console.WriteLine($"Received packet via UDP: {_msg}");
             ClientSend.UDPTestReceive();
         }
+
+        public static void DataExchange(Packet _packet)
+        {
+            string _data = _packet.ReadString();
+            Console.WriteLine($"Received data from server: {_data}");
+        }
     }
 }

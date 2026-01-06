@@ -47,7 +47,8 @@ namespace TCPUDPSample.Networking.Client
             packetHandlers = new Dictionary<int, PacketHandler>()
             {
                 { (int)ServerPackets.welcome, p => ClientHandle.Welcome(p) },
-                { (int)ServerPackets.udpTest, p => ClientHandle.UDPTest(p) }
+                { (int)ServerPackets.udpTest, p => ClientHandle.UDPTest(p) },
+                { (int)ServerPackets.dataExchange, p => ClientHandle.DataExchange(p) }
             };
             Console.WriteLine("Initialized packets.");
         }

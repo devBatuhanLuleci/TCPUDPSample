@@ -35,7 +35,15 @@ namespace TCPUDPSample.Protocols.Client
             {
                 _packet.Write("Received a UDP packet!");
 
-                SendUDPData(_packet);
+            }
+        }
+        public static void DataExchange(string _data)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.dataExchange))
+            {
+                _packet.Write(_data);
+
+                SendTCPData(_packet);
             }
         }
     }

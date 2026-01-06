@@ -17,14 +17,17 @@ namespace TCPUDPSample
 
             string? input = Console.ReadLine();
 
+            bool isServer = false;
             if (input == "1")
             {
                 isRunning = true;
+                isServer = true;
                 Server.Start(10, 26950);
             }
             else if (input == "2")
             {
                 isRunning = true;
+                isServer = false;
                 Client client = new Client();
                 client.Start();
                 client.ConnectToServer();
@@ -35,9 +38,24 @@ namespace TCPUDPSample
                 return;
             }
 
+            Console.WriteLine(isServer ? "Server is running. Press 'M' to send a message to all clients." : "Client is running. Press 'G' to send a message to the server.");
+
             // Main loop
             while (isRunning)
             {
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo _key = Console.ReadKey(true);
+                    if (isServer && _key.Key == ConsoleKey.M)
+                    {
+                        Protocols.Server.ServerSend.SendDataToAll("Hello from the server!");
+                    }
+                    else if (!isServer && _key.Key == ConsoleKey.G)
+                    {
+                        Protocols.Client.ClientSend.DataExchange("Hello from the client!");
+                    }
+                }
+
                 ThreadManager.UpdateMain();
                 Thread.Sleep(10); // Small sleep to prevent 100% CPU usage
             }
