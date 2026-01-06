@@ -1,6 +1,6 @@
 using System;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Protocols
 {
     /// <summary>Sent from server to client.</summary>
     public enum ServerPackets

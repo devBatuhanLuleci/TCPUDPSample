@@ -1,7 +1,9 @@
 using System;
 using System.Net;
+using TCPUDPSample.Core;
+using TCPUDPSample.Protocols;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Protocols.Client
 {
     public class ClientHandle
     {
@@ -11,11 +13,10 @@ namespace TCPUDPSample
             int _myId = _packet.ReadInt();
 
             Console.WriteLine($"Message from server: {_msg}");
-            Client.instance.myId = _myId;
+            Networking.Client.Client.instance!.myId = _myId;
             ClientSend.WelcomeReceived();
 
-            // Establish UDP connection
-            Client.instance.udp.Connect(((IPEndPoint)Client.instance.tcp.socket.Client.LocalEndPoint).Port);
+            Networking.Client.Client.instance.udp!.Connect(((IPEndPoint)Networking.Client.Client.instance.tcp!.socket!.Client.LocalEndPoint!).Port);
         }
 
         public static void UDPTest(Packet _packet)

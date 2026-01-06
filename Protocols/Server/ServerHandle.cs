@@ -1,6 +1,9 @@
 using System;
+using TCPUDPSample.Core;
+using TCPUDPSample.Protocols;
+using TCPUDPSample.Networking.Server;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Protocols.Server
 {
     public class ServerHandle
     {
@@ -9,12 +12,12 @@ namespace TCPUDPSample
             int _clientIdCheck = _packet.ReadInt();
             string _username = _packet.ReadString();
 
-            Console.WriteLine($"{Server.Clients[_fromClient].tcp.socket.Client.RemoteEndPoint} back with username: {_username} (ID: {_fromClient})");
+            Console.WriteLine($"{Networking.Server.Server.Clients[_fromClient].tcp.socket.Client.RemoteEndPoint} back with username: {_username} (ID: {_fromClient})");
+
             if (_fromClient != _clientIdCheck)
             {
                 Console.WriteLine($"Player \"{_username}\" (ID: {_fromClient}) has assumed the wrong client ID ({_clientIdCheck})!");
             }
-            // Send player into game logic here
         }
 
         public static void UDPTestReceive(int _fromClient, Packet _packet)

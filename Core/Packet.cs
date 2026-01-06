@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Core
 {
     public class Packet : IDisposable
     {

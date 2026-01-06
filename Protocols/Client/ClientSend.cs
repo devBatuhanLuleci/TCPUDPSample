@@ -1,27 +1,29 @@
 using System;
+using TCPUDPSample.Core;
+using TCPUDPSample.Protocols;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Protocols.Client
 {
     public class ClientSend
     {
         private static void SendTCPData(Packet _packet)
         {
             _packet.WriteLength();
-            Client.instance.tcp.SendData(_packet);
+            Networking.Client.Client.instance!.tcp!.SendData(_packet);
         }
 
         private static void SendUDPData(Packet _packet)
         {
             _packet.WriteLength();
-            Client.instance.udp.SendData(_packet);
+            Networking.Client.Client.instance!.udp!.SendData(_packet);
         }
 
         public static void WelcomeReceived()
         {
             using (Packet _packet = new Packet((int)ClientPackets.welcomeReceived))
             {
-                _packet.Write(Client.instance.myId);
-                _packet.Write("TestUser"); // Hardcoded for now
+                _packet.Write(Networking.Client.Client.instance!.myId);
+                _packet.Write("TestUser");
 
                 SendTCPData(_packet);
             }
@@ -31,7 +33,7 @@ namespace TCPUDPSample
         {
             using (Packet _packet = new Packet((int)ClientPackets.udpTestReceive))
             {
-                _packet.Write("Test message via UDP");
+                _packet.Write("Received a UDP packet!");
 
                 SendUDPData(_packet);
             }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Core
 {
     public class ThreadManager
     {

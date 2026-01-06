@@ -2,22 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using TCPUDPSample.Core;
+using TCPUDPSample.Protocols;
+using TCPUDPSample.Protocols.Client;
 
-namespace TCPUDPSample
+namespace TCPUDPSample.Networking.Client
 {
     public class Client
     {
-        public static Client instance;
+        public static Client? instance;
         public static int dataBufferSize = 4096;
 
         public string ip = "127.0.0.1";
         public int port = 26950;
         public int myId;
-        public TCP tcp;
-        public UDP udp;
+        public TCP? tcp;
+        public UDP? udp;
 
         public delegate void PacketHandler(Packet _packet);
-        private static Dictionary<int, PacketHandler> packetHandlers;
+        public static Dictionary<int, PacketHandler>? packetHandlers;
 
         private bool isConnected = false;
 
@@ -51,17 +54,17 @@ namespace TCPUDPSample
 
         public void ConnectToServer()
         {
-            tcp.Connect();
+            tcp?.Connect();
             isConnected = true;
         }
 
         public class TCP
         {
-            public TcpClient socket;
+            public TcpClient? socket;
 
-            private NetworkStream stream;
-            private Packet receivedData;
-            private byte[] receiveBuffer;
+            private NetworkStream? stream;
+            private Packet? receivedData;
+            private byte[]? receiveBuffer;
 
             public void Connect()
             {
@@ -72,12 +75,12 @@ namespace TCPUDPSample
                 };
 
                 receiveBuffer = new byte[dataBufferSize];
-                socket.BeginConnect(instance.ip, instance.port, ConnectCallback, socket);
+                socket.BeginConnect(instance!.ip, instance.port, ConnectCallback, socket);
             }
 
             private void ConnectCallback(IAsyncResult _result)
             {
-                socket.EndConnect(_result);
+                socket!.EndConnect(_result);
 
                 if (!socket.Connected)
                 {
@@ -94,7 +97,7 @@ namespace TCPUDPSample
             {
                 try
                 {
-                    if (socket != null)
+                    if (socket != null && stream != null)
                     {
                         stream.BeginWrite(_packet.ToArray(), 0, _packet.Length(), null, null);
                     }
@@ -109,18 +112,18 @@ namespace TCPUDPSample
             {
                 try
                 {
-                    int _byteLength = stream.EndRead(_result);
+                    int _byteLength = stream!.EndRead(_result);
                     if (_byteLength <= 0)
                     {
-                        instance.Disconnect();
+                        instance!.Disconnect();
                         return;
                     }
 
                     byte[] _data = new byte[_byteLength];
-                    Array.Copy(receiveBuffer, _data, _byteLength);
+                    Array.Copy(receiveBuffer!, _data, _byteLength);
 
-                    receivedData.Reset(HandleData(_data));
-                    stream.BeginRead(receiveBuffer, 0, dataBufferSize, ReceiveCallback, null);
+                    receivedData!.Reset(HandleData(_data));
+                    stream.BeginRead(receiveBuffer!, 0, dataBufferSize, ReceiveCallback, null);
                 }
                 catch
                 {
@@ -132,7 +135,7 @@ namespace TCPUDPSample
             {
                 int _packetLength = 0;
 
-                receivedData.SetBytes(_data);
+                receivedData!.SetBytes(_data);
 
                 if (receivedData.UnreadLength() >= 4)
                 {
@@ -151,7 +154,7 @@ namespace TCPUDPSample
                         using (Packet _packet = new Packet(_packetBytes))
                         {
                             int _packetId = _packet.ReadInt();
-                            packetHandlers[_packetId](_packet);
+                            packetHandlers![_packetId](_packet);
                         }
                     });
 
@@ -176,7 +179,7 @@ namespace TCPUDPSample
 
             private void Disconnect()
             {
-                instance.Disconnect();
+                instance!.Disconnect();
                 stream = null;
                 receivedData = null;
                 receiveBuffer = null;
@@ -186,12 +189,12 @@ namespace TCPUDPSample
 
         public class UDP
         {
-            public UdpClient socket;
+            public UdpClient? socket;
             public IPEndPoint endPoint;
 
             public UDP()
             {
-                endPoint = new IPEndPoint(IPAddress.Parse(instance.ip), instance.port);
+                endPoint = new IPEndPoint(IPAddress.Parse(instance!.ip), instance.port);
             }
 
             public void Connect(int _localPort)
@@ -210,7 +213,7 @@ namespace TCPUDPSample
             {
                 try
                 {
-                    _packet.Write(instance.myId);
+                    _packet.Write(instance!.myId);
                     if (socket != null)
                     {
                         socket.BeginSend(_packet.ToArray(), _packet.Length(), null, null);
@@ -226,12 +229,12 @@ namespace TCPUDPSample
             {
                 try
                 {
-                    byte[] _data = socket.EndReceive(_result, ref endPoint);
+                    byte[] _data = socket!.EndReceive(_result, ref endPoint);
                     socket.BeginReceive(ReceiveCallback, null);
 
                     if (_data.Length < 4)
                     {
-                        instance.Disconnect();
+                        instance!.Disconnect();
                         return;
                     }
 
@@ -256,28 +259,25 @@ namespace TCPUDPSample
                     using (Packet _packet = new Packet(_data))
                     {
                         int _packetId = _packet.ReadInt();
-                        packetHandlers[_packetId](_packet);
+                        packetHandlers![_packetId](_packet);
                     }
                 });
             }
 
             private void Disconnect()
             {
-                instance.Disconnect();
+                instance!.Disconnect();
                 socket = null;
             }
         }
 
-        private void Disconnect()
+        public void Disconnect()
         {
             if (isConnected)
             {
                 isConnected = false;
-                tcp.socket.Close();
-                if (udp.socket != null)
-                {
-                    udp.socket.Close();
-                }
+                tcp?.socket?.Close();
+                udp?.socket?.Close();
 
                 Console.WriteLine("Disconnected from server.");
             }

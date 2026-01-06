@@ -1,5 +1,8 @@
 using System;
 using System.Threading;
+using TCPUDPSample.Core;
+using TCPUDPSample.Networking.Server;
+using TCPUDPSample.Networking.Client;
 
 namespace TCPUDPSample
 {
