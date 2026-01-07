@@ -111,7 +111,14 @@ namespace TCPUDPSample.Networking.Server
                         using (Packet _packet = new Packet(_packetBytes))
                         {
                             int _packetId = _packet.ReadInt();
-                            Server.packetHandlers![_packetId](id, _packet);
+                            if (Server.packetHandlers != null && Server.packetHandlers.ContainsKey(_packetId))
+                            {
+                                Server.packetHandlers[_packetId](id, _packet);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Unknown packet ID {_packetId} received from client {id} via TCP.");
+                            }
                         }
                     });
 
@@ -178,7 +185,14 @@ namespace TCPUDPSample.Networking.Server
                     using (Packet _packet = new Packet(_packetBytes))
                     {
                         int _packetId = _packet.ReadInt();
-                        Server.packetHandlers![_packetId](id, _packet);
+                        if (Server.packetHandlers != null && Server.packetHandlers.ContainsKey(_packetId))
+                        {
+                            Server.packetHandlers[_packetId](id, _packet);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Unknown packet ID {_packetId} received from client {id} via UDP.");
+                        }
                     }
                 });
             }
